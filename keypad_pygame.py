@@ -23,12 +23,14 @@ import pygame
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/foamyguy/Foamyguy_CircuitPython_Blinka_Displayio_PyGameDisplay.git"
 
+
 class PyGameKeys(keypad._KeysBase):
     """Manage a set of independent keys."""
 
     def __init__(
         self, py_keys, *, value_when_pressed, pull=True, interval=0.02, max_events=64
     ):
+        # pylint: disable=unused-argument, too-many-arguments
         """
         Create a `PyGameKeys` object that will record key-presses.
         Each key is independent.
@@ -56,6 +58,8 @@ class PyGameKeys(keypad._KeysBase):
         self._value_when_pressed = value_when_pressed
         super().__init__(interval, max_events, self._keypad_keys_scan)
         self._last_scan = time.monotonic()
+        self._currently_pressed = [False] * self.key_count
+        self._previously_pressed = [False] * self.key_count
 
     def deinit(self):
         """Stop scanning"""
@@ -69,7 +73,6 @@ class PyGameKeys(keypad._KeysBase):
         Any key that is already pressed at the time of this call will therefore immediately cause
         a new key-pressed event to occur.
         """
-        self._currently_pressed = self._previously_pressed = [False] * self.key_count
 
     @property
     def key_count(self):
@@ -84,7 +87,6 @@ class PyGameKeys(keypad._KeysBase):
 
     def _keypad_keys_scan(self):
         """Never called, since we override _scanning_loop"""
-        pass
 
     def _check(self, pygame_ev):
         """Check the given pygame-event for a key in our list.
@@ -95,15 +97,16 @@ class PyGameKeys(keypad._KeysBase):
             return
         self._last_scan = time.monotonic()
         # check keys (record all keys if list of keys is empty)
-        keys = (enumerate(self._keycodes) if self._keycodes else
-                [(pygame_ev.key, pygame_ev.key)]
-                )
+        keys = (
+            enumerate(self._keycodes)
+            if self._keycodes
+            else [(pygame_ev.key, pygame_ev.key)]
+        )
         for key_number, keycode in keys:
             if pygame_ev.key == keycode:
                 if pygame_ev.type == pygame.KEYDOWN:
                     state = self._value_when_pressed
                 else:
                     state = not self._value_when_pressed
-                self._events.keypad_eventqueue_record(
-                    key_number, state)
+                self._events.keypad_eventqueue_record(key_number, state)
                 return

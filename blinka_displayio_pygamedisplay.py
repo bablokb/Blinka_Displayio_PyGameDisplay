@@ -245,18 +245,23 @@ class PyGameDisplay(busdisplay.BusDisplay):
         areas.append(self._core.area)
         return areas
 
-    def keypad(self, py_keys, *,
-               value_when_pressed, pull=True, interval=0.02, max_events=64
-               ) -> keypad_pygame.PyGameKeys:
-        """ create a keypad compatible object """
+    def keypad(
+        self, py_keys, *, value_when_pressed, pull=True, interval=0.02, max_events=64
+    ) -> keypad_pygame.PyGameKeys:
+        # pylint: disable=too-many-arguments
+        """create a keypad compatible object"""
         self._keypad = keypad_pygame.PyGameKeys(
-          py_keys, value_when_pressed=value_when_pressed,
-          pull=pull, interval=interval, max_events=max_events)
+            py_keys,
+            value_when_pressed=value_when_pressed,
+            pull=pull,
+            interval=interval,
+            max_events=max_events,
+        )
         self._keypad._display = self
         return self._keypad
 
     def _keypad_deinit(self):
-        """ deinitialize the keypad. Don't call this method directly """
+        """deinitialize the keypad. Don't call this method directly"""
         self._keypad = None
 
     def check_quit(self, delay=0.05):
@@ -284,8 +289,7 @@ class PyGameDisplay(busdisplay.BusDisplay):
                 ):
                     # force refresh even if auto_refresh == False
                     do_refresh = True
-                elif (self._keypad and
-                      event.type in [pygame.KEYDOWN, pygame.KEYUP]):
+                elif self._keypad and event.type in [pygame.KEYDOWN, pygame.KEYUP]:
                     self._keypad._check(event)
             if do_refresh:
                 self._refresh_display()
@@ -337,8 +341,7 @@ class PyGameDisplay(busdisplay.BusDisplay):
                 elif event.type in events:
                     # use callback for event-processing
                     on_event(event)
-                elif (self._keypad and
-                      event.type in [pygame.KEYDOWN, pygame.KEYUP]):
+                elif self._keypad and event.type in [pygame.KEYDOWN, pygame.KEYUP]:
                     self._keypad._check(event)
             if do_refresh:
                 self._refresh_display()

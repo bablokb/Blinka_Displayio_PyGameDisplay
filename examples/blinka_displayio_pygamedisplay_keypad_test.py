@@ -5,28 +5,32 @@
 Testing keypad-processing
 """
 
-# set to True to catch all keys
-ALL_KEYS = False
-
-import time
-import pygame
-import terminalio
 import displayio
+import terminalio
+import time
+
+import pygame
+
 from adafruit_display_text import label
 from blinka_displayio_pygamedisplay import PyGameDisplay
 
+# set to True to catch all keys
+ALL_KEYS = False
+
 # create display
-display = PyGameDisplay(width=400, height=300,
-                        native_frames_per_second=60,
+display = PyGameDisplay(
+    width=400,
+    height=300,
+    native_frames_per_second=60,
 )
 
 # create keypad
 if ALL_KEYS:
-    kp_keys  = []
-    kp_text  = "press any key"
+    kp_keys = []
+    kp_text = "press any key"
 else:
     kp_keys = [pygame.K_LEFT, pygame.K_HOME, pygame.K_RIGHT]
-    kp_text  = "available keys: left, home, right"
+    kp_text = "available keys: left, home, right"
 kp = display.keypad(kp_keys, value_when_pressed=True, interval=0.02)
 
 # create and center text area
@@ -49,14 +53,15 @@ while True:
     if display.check_quit():
         break
     while True:
-        event = kp.events.get()     # a keypad-event, not a pygame-event!
+        event = kp.events.get()  # a keypad-event, not a pygame-event!
         if event and event.pressed:
-            if text_area.text == kp_text:   # remove prompt
+            if text_area.text == kp_text:  # remove prompt
                 text_area.text = ""
             # append key to output
             text_area.text += pygame.key.name(
-              kp_keys[event.key_number] if len(kp_keys) else event.key_number,
-              use_compat=True)
+                kp_keys[event.key_number] if kp_keys else event.key_number,
+                use_compat=True,
+            )
             last_event = time.monotonic()
         else:
             break
